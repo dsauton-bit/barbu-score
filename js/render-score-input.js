@@ -3,9 +3,15 @@ export function renderScoreInputScreen() {
 
     const round = this.activeGame.activeRound;
     const chooser = this.activeGame.players[round.chooserIndex];
+    const isEditing = this.editingRoundIdx !== null && this.editingRoundIdx !== undefined;
 
+    document.getElementById('score-input-title').textContent =
+        isEditing ? 'Modification de la manche' : 'Saisie de la manche';
     document.getElementById('input-contract-name').textContent = this.CONTRACT_LABELS[round.contract];
     document.getElementById('input-chooser-name').textContent = chooser.name;
+    document.getElementById('cancel-edit-round-btn').classList.toggle('hidden', !isEditing);
+    document.getElementById('submit-scores-btn').textContent =
+        isEditing ? '✔ Enregistrer la modification' : 'Valider les scores ➔';
 
     const container = document.getElementById('score-input-form-container');
     container.innerHTML = '';
@@ -160,9 +166,18 @@ export function renderRankForm(container) {
         round.scores = [null, null, null, null];
     }
 
+    const reussiteValues = this.settings[this.CONTRACT_KEYS.REUSSITE] || [100, 50, 0, 0];
+    // Positions avec un bonus > 0 (les seules à attribuer)
+    const scoredRanks = reussiteValues
+        .map((v, i) => ({ rank: i, value: v }))
+        .filter(r => r.value > 0);
+    const rankLabels = ['1er', '2e', '3e', '4e'];
+
     const desc = document.createElement('p');
     desc.className = 'text-muted text-center mb-4';
-    desc.textContent = "Attribuez un rang unique d'arrivée à chaque joueur :";
+    desc.textContent = scoredRanks.length < 4
+        ? `Attribuez les ${scoredRanks.length} premières places (les autres reçoivent 0 point) :`
+        : "Attribuez un rang unique d'arrivée à chaque joueur :";
     container.appendChild(desc);
 
     const list = document.createElement('div');
@@ -182,10 +197,12 @@ export function renderRankForm(container) {
                 <span class="input-player-name">${this.escapeHTML(p.name)}</span>
             </div>
             <div class="rank-options">
-                <button type="button" class="rank-option-btn ${playerRank === 0 ? 'active' : ''}" onclick="app.setRank(${p.gameIndex}, 0)">1er</button>
-                <button type="button" class="rank-option-btn ${playerRank === 1 ? 'active' : ''}" onclick="app.setRank(${p.gameIndex}, 1)">2e</button>
-                <button type="button" class="rank-option-btn ${playerRank === 2 ? 'active' : ''}" onclick="app.setRank(${p.gameIndex}, 2)">3e</button>
-                <button type="button" class="rank-option-btn ${playerRank === 3 ? 'active' : ''}" onclick="app.setRank(${p.gameIndex}, 3)">4e</button>
+                ${scoredRanks.map(r => `
+                    <button type="button" class="rank-option-btn ${playerRank === r.rank ? 'active' : ''}"
+                            onclick="app.setRank(${p.gameIndex}, ${r.rank})">
+                        ${rankLabels[r.rank]}<br><small>+${r.value}</small>
+                    </button>
+                `).join('')}
             </div>
         `;
         list.appendChild(row);
@@ -288,8 +305,11 @@ export function validateInputScores() {
         isValid = sum === targetTotal || (capotIdx > -1 && othersZero);
         if (!isValid) errorMsg = `Le total de la Salade doit faire ${targetTotal} (Actuel : ${sum}), ou un joueur doit avoir ${capotTotal} seul.`;
     } else if (contract === this.CONTRACT_KEYS.REUSSITE) {
-        isValid = round.scores.filter(r => r !== null).length === 4;
-        if (!isValid) errorMsg = "Veuillez attribuer un rang d'arrivée à chacun des 4 joueurs.";
+        const reussiteValues = this.settings[this.CONTRACT_KEYS.REUSSITE] || [100, 50, 0, 0];
+        const scoredRanks = reussiteValues.map((v, i) => i).filter(i => reussiteValues[i] > 0);
+        // Toutes les positions avec bonus doivent être attribuées à un joueur différent
+        isValid = scoredRanks.every(rank => round.scores.some(s => s === rank));
+        if (!isValid) errorMsg = `Attribuez les places ${scoredRanks.map(i => ['1re','2e','3e','4e'][i]).join(', ')} à des joueurs différents.`;
     }
 
     msgBox.classList.toggle('active', !isValid);

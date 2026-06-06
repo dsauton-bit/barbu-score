@@ -20,6 +20,7 @@ class BarbuApp {
         this.selectedSetupPlayers = [];
         this.webcamStream = null;
         this.editingRoundRef = null;
+        this.editingRoundIdx = null;
         this.editingPlayerId = null;
         this.dbName = 'BarbuScoreDB';
         this.dbVersion = 1;

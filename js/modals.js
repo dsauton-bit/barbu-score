@@ -14,45 +14,27 @@ export function showConfirmModal(title, message, onConfirm) {
 export function openEditRoundModal(contractKey, chooserIndex) {
     if (!this.activeGame || !this.activeGame.roundHistory) return;
 
-    const round = this.activeGame.roundHistory.find(
+    const idx = this.activeGame.roundHistory.findIndex(
         r => r.contract === contractKey && r.chooserIndex === chooserIndex
     );
-    if (!round) return;
+    if (idx === -1) return;
 
-    this.editingRoundRef = round;
+    const round = this.activeGame.roundHistory[idx];
+    this.editingRoundIdx = idx;
 
-    document.getElementById('edit-round-title').textContent = `Modifier : ${this.CONTRACT_LABELS[contractKey]}`;
-    const chooser = this.activeGame.players[chooserIndex];
-    document.getElementById('edit-round-desc').innerHTML =
-        `Manche choisie par <strong>${chooser.name}</strong>.<br>Veuillez corriger directement les points attribués :`;
+    // Restaure les scores originaux pour pré-remplir le formulaire de saisie
+    const originalScores = round.scores
+        ? [...round.scores]
+        : [...round.scoresAdded]; // fallback pour les anciennes parties
 
-    const container = document.getElementById('edit-round-inputs-container');
-    container.innerHTML = '';
+    this.activeGame.activeRound = {
+        contract: contractKey,
+        chooserIndex,
+        scores: originalScores
+    };
 
-    this.activeGame.players.forEach(p => {
-        const val = round.scoresAdded[p.gameIndex] || 0;
-        const avatar = p.photo
-            ? `<img class="input-player-avatar" src="${p.photo}">`
-            : `<div class="input-player-avatar" style="display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg-secondary);border:1px solid var(--border-color)">👤</div>`;
-
-        const row = document.createElement('div');
-        row.className = 'input-player-row';
-        row.innerHTML = `
-            <div class="input-player-info">
-                ${avatar}
-                <span class="input-player-name">${this.escapeHTML(p.name)}</span>
-            </div>
-            <div>
-                <input type="number" class="edit-player-score-input" id="edit-score-input-${p.gameIndex}"
-                       value="${val}" style="width:100px;text-align:center;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border-color);background:rgba(0,0,0,0.2);color:white;"
-                       oninput="app.validateEditedRound()">
-            </div>
-        `;
-        container.appendChild(row);
-    });
-
-    document.getElementById('edit-round-modal').classList.remove('hidden');
-    this.validateEditedRound();
+    this.saveActiveGame();
+    this.navigate('score-input');
 }
 
 export function validateEditedRound() {
@@ -125,6 +107,13 @@ export function saveEditedRound() {
     this.saveActiveGame();
     this.closeEditRoundModal();
     this.renderGameScreen();
+}
+
+export function cancelEditRound() {
+    this.editingRoundIdx = null;
+    this.activeGame.activeRound = null;
+    this.saveActiveGame();
+    this.navigate('game');
 }
 
 export function closeEditRoundModal() {

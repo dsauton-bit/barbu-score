@@ -275,7 +275,7 @@
             <!-- ÉCRAN SAISIE DES SCORES -->
             <section id="screen-score-input" class="screen">
                 <div class="screen-header">
-                    <h2>Saisie de la manche</h2>
+                    <h2 id="score-input-title">Saisie de la manche</h2>
                     <p>Contrat choisi : <strong id="input-contract-name" class="accent">-</strong> par <strong id="input-chooser-name">-</strong></p>
                 </div>
 
@@ -291,6 +291,9 @@
                         <div id="score-input-validation-msg" class="validation-msg error">
                             <!-- Messages d'erreur de saisie de points -->
                         </div>
+                        <button class="btn btn-secondary btn-lg btn-block hidden" id="cancel-edit-round-btn" onclick="app.cancelEditRound()">
+                            ✕ Annuler la modification
+                        </button>
                         <button class="btn btn-primary btn-lg btn-block" id="submit-scores-btn" onclick="app.submitScores()">
                             Valider les scores ➔
                         </button>

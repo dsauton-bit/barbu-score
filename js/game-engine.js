@@ -142,11 +142,10 @@ export function recalculateGameScores() {
     this.activeGame.roundHistory.forEach(round => {
         this.activeGame.players.forEach(p => {
             this.activeGame.scores[p.gameIndex] += round.scoresAdded[p.gameIndex];
-            // Accumuler les points de TOUS les joueurs (pas seulement le donneur)
-            const existing = this.activeGame.playedContracts[p.gameIndex][round.contract];
-            this.activeGame.playedContracts[p.gameIndex][round.contract] =
-                (existing === null ? 0 : existing) + round.scoresAdded[p.gameIndex];
         });
+        // Seul le slot du DONNEUR est marqué comme joué (gère la grille des contrats)
+        this.activeGame.playedContracts[round.chooserIndex][round.contract] =
+            round.scoresAdded[round.chooserIndex];
     });
 
     this.activeGame.roundsPlayed = this.activeGame.roundHistory.length;
@@ -186,16 +185,27 @@ export function submitScores() {
         round.scores.forEach((val, pIdx) => { finalPointsAdded[pIdx] = val; });
     } else if (contract === this.CONTRACT_KEYS.REUSSITE) {
         const ranks = this.settings[this.CONTRACT_KEYS.REUSSITE];
-        round.scores.forEach((rank, pIdx) => { finalPointsAdded[pIdx] = ranks[rank]; });
+        round.scores.forEach((rank, pIdx) => {
+            finalPointsAdded[pIdx] = (rank !== null && ranks[rank] !== undefined) ? ranks[rank] : 0;
+        });
     }
 
     if (!this.activeGame.roundHistory) this.activeGame.roundHistory = [];
 
-    this.activeGame.roundHistory.push({
+    const newEntry = {
         contract,
         chooserIndex: chooserIdx,
-        scoresAdded: finalPointsAdded
-    });
+        scoresAdded: finalPointsAdded,
+        scores: [...round.scores]   // sauvegarde pour pré-remplir l'écran d'édition
+    };
+
+    if (this.editingRoundIdx !== null && this.editingRoundIdx !== undefined) {
+        // Mode édition : remplace la manche existante
+        this.activeGame.roundHistory[this.editingRoundIdx] = newEntry;
+        this.editingRoundIdx = null;
+    } else {
+        this.activeGame.roundHistory.push(newEntry);
+    }
 
     this.recalculateGameScores();
     this.activeGame.activeRound = null;
