@@ -1892,6 +1892,184 @@ h1, h2, h3, h4, h5, h6 {
     text-decoration: underline;
 }
 
+/* ==========================================================================
+   SAISIE SALADE — sous-contrats
+   ========================================================================== */
+
+.salad-header {
+    margin-bottom: 8px;
+}
+
+.salad-total-bar {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-color);
+    margin-bottom: 16px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.salad-total-ok {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.salad-total-err {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.salad-sub-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+
+.salad-sub-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+/* Sélection unique (Barbu, Dernier Pli) */
+.salad-single-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.salad-player-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 6px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+.salad-player-btn:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    background: rgba(139, 92, 246, 0.08);
+}
+
+.salad-player-btn.selected {
+    border-color: var(--color-danger);
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--text-primary);
+}
+
+.salad-player-btn .input-player-avatar {
+    width: 36px;
+    height: 36px;
+}
+
+/* Steppers (Dames, Plis, Cœurs) */
+.salad-stepper-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.salad-stepper-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 10px 6px;
+}
+
+.salad-stepper-cell .input-player-avatar {
+    width: 32px;
+    height: 32px;
+}
+
+.salad-player-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.salad-stepper-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.salad-stepper-controls .stepper-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+}
+
+.salad-stepper-controls .stepper-val {
+    min-width: 28px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.salad-tout-btn {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.salad-tout-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+/* Responsive : 2 colonnes sur petits écrans */
+@media (max-width: 480px) {
+    .salad-single-grid,
+    .salad-stepper-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Touch */
+@media (pointer: coarse) {
+    .salad-player-btn {
+        padding: 12px 6px;
+        min-height: 72px;
+    }
+
+    .salad-stepper-controls .stepper-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
+    }
+
+    .salad-tout-btn {
+        padding: 6px 12px;
+        font-size: 0.78rem;
+    }
+}
+
 /* Badge de rang (👑 Roi / 🏅 Noble / ⚔️ Chevalier / 🪣 Paysan) */
 .history-rank-badge {
     font-size: 16px;
