@@ -120,23 +120,26 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-links {
     display: flex;
-    gap: 8px;
+    gap: 4px;
+    flex-shrink: 1;
+    overflow: visible;
 }
 
 .nav-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    padding: 10px 16px;
+    padding: 10px 12px;
     border-radius: var(--radius-full);
     cursor: pointer;
     font-family: var(--font-heading);
     font-weight: 500;
-    font-size: 15px;
+    font-size: 14px;
     transition: var(--transition-fast);
+    white-space: nowrap;
 }
 
 .nav-btn .icon {
@@ -1585,9 +1588,11 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .nav-btn {
-        padding: 10px;
+        padding: 8px;
+        flex: 1;
+        justify-content: center;
     }
-    
+
     .app-main {
         padding-bottom: 100px; /* Espace pour la barre fixe en bas */
     }
