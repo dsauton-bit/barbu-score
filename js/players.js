@@ -7,30 +7,68 @@
    ========================================================================== */
 
 export async function toggleWebcam() {
-    const video = document.getElementById('webcam-video');
-    const preview = document.getElementById('photo-preview');
-    const btnText = document.getElementById('webcam-btn-text');
-    const captureBtn = document.getElementById('capture-btn');
-
     if (this.webcamStream) {
         this.stopWebcam();
         return;
     }
+    // Caméra avant par défaut (selfie)
+    this._webcamFacing = this._webcamFacing || 'user';
+    await this._startWebcam(this._webcamFacing);
+}
+
+export async function _startWebcam(facingMode) {
+    const video = document.getElementById('webcam-video');
+    const preview = document.getElementById('photo-preview');
+    const btnText = document.getElementById('webcam-btn-text');
+    const captureBtn = document.getElementById('capture-btn');
+    const flipBtn = document.getElementById('flip-camera-btn');
+    const flipLabel = document.getElementById('flip-camera-label');
+
+    // Arrêter le flux existant avant d'en ouvrir un nouveau
+    if (this.webcamStream) {
+        this.webcamStream.getTracks().forEach(t => t.stop());
+        this.webcamStream = null;
+    }
 
     try {
         this.webcamStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width: 300, height: 300 },
+            video: { facingMode, width: { ideal: 1280 }, height: { ideal: 1280 } },
             audio: false
         });
+        this._webcamFacing = facingMode;
+
         video.srcObject = this.webcamStream;
         video.classList.remove('hidden');
         preview.classList.add('hidden');
         btnText.textContent = "Annuler";
         captureBtn.classList.remove('hidden');
+
+        // Afficher le bouton flip uniquement si l'appareil a plusieurs caméras
+        this._checkMultipleCameras().then(hasMultiple => {
+            if (hasMultiple) {
+                flipBtn.classList.remove('hidden');
+                flipLabel.textContent = facingMode === 'user' ? 'Dos' : 'Avant';
+            }
+        });
     } catch (err) {
         console.error("Erreur d'accès à la caméra:", err);
         alert("Impossible d'accéder à la caméra. Veuillez importer une photo depuis votre galerie.");
     }
+}
+
+export async function _checkMultipleCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter(d => d.kind === 'videoinput');
+        return videoInputs.length > 1;
+    } catch {
+        return false;
+    }
+}
+
+export async function flipCamera() {
+    const newFacing = this._webcamFacing === 'user' ? 'environment' : 'user';
+    await this._startWebcam(newFacing);
 }
 
 export function stopWebcam() {
@@ -38,6 +76,7 @@ export function stopWebcam() {
     const preview = document.getElementById('photo-preview');
     const btnText = document.getElementById('webcam-btn-text');
     const captureBtn = document.getElementById('capture-btn');
+    const flipBtn = document.getElementById('flip-camera-btn');
 
     if (this.webcamStream) {
         this.webcamStream.getTracks().forEach(track => track.stop());
@@ -49,6 +88,7 @@ export function stopWebcam() {
     preview.classList.remove('hidden');
     btnText.textContent = "Caméra";
     captureBtn.classList.add('hidden');
+    flipBtn.classList.add('hidden');
 }
 
 export function capturePhoto() {
