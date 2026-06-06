@@ -1,4 +1,4 @@
-const CACHE_NAME = 'barbu-score-v2';
+const CACHE_NAME = 'barbu-score-1.1.6';
 
 const APP_SHELL = [
     '/',
