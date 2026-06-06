@@ -296,48 +296,128 @@ export function renderRankForm(container) {
     }
 
     const reussiteValues = this.settings[this.CONTRACT_KEYS.REUSSITE] || [100, 50, 0, 0];
-    // Positions avec un bonus > 0 (les seules à attribuer)
     const scoredRanks = reussiteValues
         .map((v, i) => ({ rank: i, value: v }))
         .filter(r => r.value > 0);
-    const rankLabels = ['1er', '2e', '3e', '4e'];
+    const RANK_MEDALS = ['🥇', '🥈', '🥉', '🎖️'];
+    const rankLabels  = ['1er', '2e', '3e', '4e'];
 
+    // ── Instruction ──────────────────────────────────────────────────────
     const desc = document.createElement('p');
     desc.className = 'text-muted text-center mb-4';
-    desc.textContent = scoredRanks.length < 4
-        ? `Attribuez les ${scoredRanks.length} premières places (les autres reçoivent 0 point) :`
-        : "Attribuez un rang unique d'arrivée à chaque joueur :";
+    desc.textContent = 'Tapez les joueurs dans leur ordre de sortie :';
     container.appendChild(desc);
 
-    const list = document.createElement('div');
-    list.className = 'rank-selector-row';
+    // ── Podium : emplacements des rangs bonifiés ──────────────────────────
+    const podium = document.createElement('div');
+    podium.className = 'reussite-podium';
+    podium.id = 'reussite-podium';
+    scoredRanks.forEach(r => {
+        const assigned = this.activeGame.players.find(
+            p => round.scores[p.gameIndex] === r.rank
+        );
+        const slot = document.createElement('div');
+        slot.className = `reussite-slot${assigned ? ' filled' : ''}`;
+        slot.id = `reussite-slot-${r.rank}`;
+        slot.innerHTML = assigned
+            ? this._reussiteSlotFilled(assigned, r, RANK_MEDALS, rankLabels)
+            : this._reussiteSlotEmpty(r, RANK_MEDALS, rankLabels);
+        podium.appendChild(slot);
+    });
+    container.appendChild(podium);
 
+    // ── Grille des joueurs à taper ────────────────────────────────────────
+    const desc2 = document.createElement('p');
+    desc2.className = 'text-muted text-center mb-4';
+    desc2.style.marginTop = '20px';
+    desc2.textContent = 'Joueurs disponibles :';
+    container.appendChild(desc2);
+
+    const grid = document.createElement('div');
+    grid.className = 'reussite-player-grid';
+    grid.id = 'reussite-player-grid';
+    this._renderReussiteGrid(grid, round, scoredRanks, RANK_MEDALS, rankLabels);
+    container.appendChild(grid);
+}
+
+export function _reussiteSlotEmpty(r, medals, labels) {
+    return `
+        <div class="reussite-slot-medal">${medals[r.rank]}</div>
+        <div class="reussite-slot-label">${labels[r.rank]}</div>
+        <div class="reussite-slot-pts">+${r.value} pts</div>
+        <div class="reussite-slot-name">—</div>`;
+}
+
+export function _reussiteSlotFilled(player, r, medals, labels) {
+    const avatar = player.photo
+        ? `<img class="reussite-slot-avatar" src="${player.photo}">`
+        : `<div class="reussite-slot-avatar">👤</div>`;
+    return `
+        <div class="reussite-slot-medal">${medals[r.rank]}</div>
+        ${avatar}
+        <div class="reussite-slot-name">${this.escapeHTML(player.name)}</div>
+        <div class="reussite-slot-pts">+${r.value} pts</div>`;
+}
+
+export function _renderReussiteGrid(grid, round, scoredRanks, medals, labels) {
+    grid.innerHTML = '';
     this.activeGame.players.forEach(p => {
-        const playerRank = round.scores[p.gameIndex];
+        const assignedRank = round.scores[p.gameIndex];
+        const isAssigned   = assignedRank !== null;
+        const rankInfo     = isAssigned ? scoredRanks.find(r => r.rank === assignedRank) : null;
         const avatar = p.photo
-            ? `<img class="input-player-avatar" src="${p.photo}">`
-            : `<div class="input-player-avatar" style="display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--bg-secondary);">👤</div>`;
+            ? `<img class="reussite-card-avatar" src="${p.photo}">`
+            : `<div class="reussite-card-avatar">👤</div>`;
 
-        const row = document.createElement('div');
-        row.className = 'rank-row';
-        row.innerHTML = `
-            <div class="input-player-info" style="justify-self:start;">
-                ${avatar}
-                <span class="input-player-name">${this.escapeHTML(p.name)}</span>
-            </div>
-            <div class="rank-options">
-                ${scoredRanks.map(r => `
-                    <button type="button" class="rank-option-btn ${playerRank === r.rank ? 'active' : ''}"
-                            onclick="app.setRank(${p.gameIndex}, ${r.rank})">
-                        ${rankLabels[r.rank]}<br><small>+${r.value}</small>
-                    </button>
-                `).join('')}
-            </div>
-        `;
-        list.appendChild(row);
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = `reussite-player-card${isAssigned ? ' assigned' : ''}`;
+
+        card.innerHTML = isAssigned
+            ? `<div class="reussite-card-rank-badge">${medals[assignedRank]}</div>
+               ${avatar}
+               <div class="reussite-card-name">${this.escapeHTML(p.name)}</div>
+               <div class="reussite-card-pts">${labels[assignedRank]} · +${rankInfo?.value ?? 0} pts</div>`
+            : `${avatar}
+               <div class="reussite-card-name">${this.escapeHTML(p.name)}</div>
+               <div class="reussite-card-pts">En attente…</div>`;
+
+        card.onclick = () => this._reussiteTap(p.gameIndex, scoredRanks, medals, labels);
+        grid.appendChild(card);
+    });
+}
+
+export function _reussiteTap(playerIndex, scoredRanks, medals, labels) {
+    const round = this.activeGame.activeRound;
+
+    if (round.scores[playerIndex] !== null) {
+        // Désassigner : libère le rang
+        round.scores[playerIndex] = null;
+    } else {
+        // Assigner le prochain rang disponible
+        const usedRanks = round.scores.filter(s => s !== null);
+        const nextRank = scoredRanks.find(r => !usedRanks.includes(r.rank));
+        if (!nextRank) return; // plus de rangs bonifiés disponibles
+        round.scores[playerIndex] = nextRank.rank;
+    }
+
+    // Mettre à jour le podium
+    scoredRanks.forEach(r => {
+        const slot = document.getElementById(`reussite-slot-${r.rank}`);
+        if (!slot) return;
+        const assigned = this.activeGame.players.find(p => round.scores[p.gameIndex] === r.rank);
+        slot.classList.toggle('filled', !!assigned);
+        slot.innerHTML = assigned
+            ? this._reussiteSlotFilled(assigned, r, medals, labels)
+            : this._reussiteSlotEmpty(r, medals, labels);
     });
 
-    container.appendChild(list);
+    // Mettre à jour la grille joueurs
+    const grid = document.getElementById('reussite-player-grid');
+    if (grid) this._renderReussiteGrid(grid, round, scoredRanks, medals, labels);
+
+    this.validateInputScores();
+    this.saveActiveGame();
 }
 
 export function stepVal(playerIndex, delta, maxLimit) {
