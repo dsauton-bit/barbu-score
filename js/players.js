@@ -32,7 +32,7 @@ export async function _startWebcam(facingMode) {
 
     try {
         this.webcamStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode, width: { ideal: 1280 }, height: { ideal: 1280 } },
+            video: { facingMode: { ideal: facingMode }, width: { ideal: 1280 }, height: { ideal: 1280 } },
             audio: false
         });
         this._webcamFacing = facingMode;
