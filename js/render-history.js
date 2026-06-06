@@ -40,33 +40,75 @@ export function renderHistoryScreen() {
             </div>
             <div class="history-players-row">${playersHtml}</div>
             <div class="history-details-expanded">
-                <table class="contracts-table" style="font-size:12px;border:1px solid var(--border-color);">
-                    <thead>
-                        <tr>
-                            <th>Contrat</th>
-                            ${game.players.map(p => `<th style="font-size:11px;padding:6px 2px;">${this.escapeHTML(p.name)}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${Object.keys(this.CONTRACT_LABELS).map(cKey => `
-                            <tr>
-                                <td style="padding:6px;font-weight:normal">${this.CONTRACT_LABELS[cKey]}</td>
-                                ${game.players.map((p, pIdx) => {
-                                    const val = game.playedContracts[pIdx][cKey];
-                                    const sign = val > 0 ? `+${val}` : (val || 0);
-                                    const style = val > 0 ? 'color:var(--color-success);font-weight:bold;' : val < 0 ? 'color:var(--color-danger);' : '';
-                                    return `<td style="padding:6px;${style}">${sign}</td>`;
-                                }).join('')}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                ${this._buildContractDetailTable(game)}
             </div>
         `;
 
         card.onclick = () => card.classList.toggle('expanded');
         container.appendChild(card);
     });
+}
+
+export function _buildContractDetailTable(game) {
+    const n = game.players.length;
+
+    // Calcul des totaux par contrat et par joueur depuis roundHistory (source la plus fiable)
+    const totals = {}; // totals[cKey][pIdx]
+    Object.keys(this.CONTRACT_LABELS).forEach(cKey => {
+        totals[cKey] = new Array(n).fill(null);
+    });
+
+    if (game.roundHistory && game.roundHistory.length > 0) {
+        game.roundHistory.forEach(round => {
+            const cKey = round.contract;
+            if (!totals[cKey]) return;
+            round.scoresAdded.forEach((pts, pIdx) => {
+                if (pIdx < n) {
+                    totals[cKey][pIdx] = (totals[cKey][pIdx] === null ? 0 : totals[cKey][pIdx]) + pts;
+                }
+            });
+        });
+    } else if (game.playedContracts) {
+        // Fallback : playedContracts[pIdx][cKey]
+        Object.keys(this.CONTRACT_LABELS).forEach(cKey => {
+            game.players.forEach((p, pIdx) => {
+                const src = game.playedContracts[pIdx];
+                if (src) totals[cKey][pIdx] = src[cKey] !== undefined ? src[cKey] : null;
+            });
+        });
+    }
+
+    // Masquer les contrats non joués (tous les joueurs à null)
+    const playedKeys = Object.keys(this.CONTRACT_LABELS).filter(cKey =>
+        totals[cKey].some(v => v !== null)
+    );
+
+    if (playedKeys.length === 0) {
+        return `<p style="padding:12px;color:var(--text-muted);font-size:13px;">Aucun détail disponible.</p>`;
+    }
+
+    const headerCells = game.players.map(p => `<th style="font-size:11px;padding:6px 4px;text-align:center;">${this.escapeHTML(p.name)}</th>`).join('');
+
+    const rows = playedKeys.map(cKey => {
+        const cells = totals[cKey].map(val => {
+            if (val === null) return `<td style="padding:6px 4px;text-align:center;color:var(--text-muted);">—</td>`;
+            const display = val > 0 ? `+${val}` : val;
+            const style = val > 0 ? 'color:var(--color-success);font-weight:bold;' : val < 0 ? 'color:var(--color-danger);' : 'color:var(--text-muted);';
+            return `<td style="padding:6px 4px;text-align:center;${style}">${display}</td>`;
+        }).join('');
+        return `<tr>
+            <td style="padding:6px 8px;font-weight:normal;white-space:nowrap;">${this.CONTRACT_LABELS[cKey]}</td>
+            ${cells}
+        </tr>`;
+    }).join('');
+
+    return `<table class="contracts-table" style="font-size:12px;width:100%;border-top:1px solid var(--border-color);">
+        <thead><tr>
+            <th style="padding:6px 8px;">Contrat</th>
+            ${headerCells}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
 }
 
 export function deleteHistory(gameId) {

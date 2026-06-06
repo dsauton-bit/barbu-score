@@ -101,7 +101,8 @@ export async function endGame() {
             score: this.activeGame.scores[p.gameIndex]
         })),
         winnerId: finalResults[0].id,
-        playedContracts: this.activeGame.playedContracts
+        playedContracts: this.activeGame.playedContracts,
+        roundHistory: this.activeGame.roundHistory || []
     };
 
     const history = JSON.parse(localStorage.getItem('barbu_history') || '[]');
@@ -141,8 +142,11 @@ export function recalculateGameScores() {
     this.activeGame.roundHistory.forEach(round => {
         this.activeGame.players.forEach(p => {
             this.activeGame.scores[p.gameIndex] += round.scoresAdded[p.gameIndex];
+            // Accumuler les points de TOUS les joueurs (pas seulement le donneur)
+            const existing = this.activeGame.playedContracts[p.gameIndex][round.contract];
+            this.activeGame.playedContracts[p.gameIndex][round.contract] =
+                (existing === null ? 0 : existing) + round.scoresAdded[p.gameIndex];
         });
-        this.activeGame.playedContracts[round.chooserIndex][round.contract] = round.scoresAdded[round.chooserIndex];
     });
 
     this.activeGame.roundsPlayed = this.activeGame.roundHistory.length;
