@@ -43,6 +43,7 @@ class BarbuApp {
         }
 
         this.setupSettingsListeners();
+        this._initCameraButton();
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(() => {});

@@ -6,6 +6,22 @@
    Aucune donnée n'est envoyée ni stockée sur le serveur.
    ========================================================================== */
 
+export async function _initCameraButton() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+        document.getElementById('webcam-btn').classList.add('hidden');
+        return;
+    }
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const hasCamera = devices.some(d => d.kind === 'videoinput');
+        if (!hasCamera) {
+            document.getElementById('webcam-btn').classList.add('hidden');
+        }
+    } catch {
+        // Impossible de vérifier → on laisse le bouton visible
+    }
+}
+
 export async function toggleWebcam() {
     if (this.webcamStream) {
         this.stopWebcam();
@@ -51,8 +67,19 @@ export async function _startWebcam(facingMode) {
             }
         });
     } catch (err) {
-        console.error("Erreur d'accès à la caméra:", err);
-        alert("Impossible d'accéder à la caméra. Veuillez importer une photo depuis votre galerie.");
+        console.warn("Erreur caméra:", err.name, err.message);
+        this.webcamStream = null;
+
+        if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+            // Pas de caméra sur cet appareil → masquer le bouton discrètement
+            document.getElementById('webcam-btn').classList.add('hidden');
+        } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            alert("Accès à la caméra refusé. Autorisez la caméra dans les paramètres de votre navigateur.");
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+            alert("La caméra est déjà utilisée par une autre application.");
+        } else {
+            alert("Impossible d'accéder à la caméra. Essayez d'importer une photo depuis votre galerie.");
+        }
     }
 }
 
