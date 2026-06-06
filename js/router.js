@@ -23,6 +23,7 @@ export function navigate(screenId) {
     else if (screenId === 'history') this.renderHistoryScreen();
     else if (screenId === 'settings') this.loadSettings();
     else if (screenId === 'home') this.updateStatsOverview();
+    else if (screenId === 'about') this.renderAboutScreen();
 
     window.scrollTo(0, 0);
 }

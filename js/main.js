@@ -7,6 +7,7 @@ import * as gameEngine from './game-engine.js';
 import * as renderGame from './render-game.js';
 import * as renderScoreInput from './render-score-input.js';
 import * as renderHistory from './render-history.js';
+import * as renderAbout from './render-about.js';
 import * as modals from './modals.js';
 import * as router from './router.js';
 import { escapeHTML } from './utils.js';
@@ -60,6 +61,7 @@ Object.assign(BarbuApp.prototype,
     renderGame,
     renderScoreInput,
     renderHistory,
+    renderAbout,
     modals,
     router,
     { escapeHTML }

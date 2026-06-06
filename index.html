@@ -43,6 +43,10 @@
                     <svg class="icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                     <span>Règles</span>
                 </button>
+                <button class="nav-btn" data-screen="about" onclick="app.navigate('about')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    <span>À propos</span>
+                </button>
             </nav>
             <div class="header-actions">
                 <button id="resume-game-btn" class="btn btn-accent btn-sm hidden" onclick="app.resumeGame()">
@@ -480,6 +484,101 @@
                         </div>
                     </form>
                 </div>
+            </section>
+
+            <!-- ÉCRAN À PROPOS / DOCUMENTATION -->
+            <section id="screen-about" class="screen">
+                <div class="about-header">
+                    <div class="about-logo">🃏</div>
+                    <h2>Barbu<span class="accent">Score</span></h2>
+                    <p class="about-version" id="about-version">v—</p>
+                    <p class="about-tagline">Compteur de points élégant pour le jeu de cartes Barbu</p>
+                </div>
+
+                <!-- Documentation utilisateur -->
+                <div class="glass-card about-section">
+                    <h3>📖 Guide d'utilisation</h3>
+
+                    <div class="about-block">
+                        <h4>Démarrer une partie</h4>
+                        <ol>
+                            <li>Allez dans <strong>Joueurs</strong> et créez vos 4 profils (nom + photo optionnelle).</li>
+                            <li>Depuis l'<strong>Accueil</strong>, appuyez sur <em>Nouvelle Partie</em>.</li>
+                            <li>Sélectionnez les 4 joueurs participant à la partie.</li>
+                            <li>Appuyez sur <em>Lancer la partie</em>.</li>
+                        </ol>
+                    </div>
+
+                    <div class="about-block">
+                        <h4>Saisir les scores d'une manche</h4>
+                        <p>Sur l'écran de jeu, le donneur actuel est mis en évidence. Appuyez sur un contrat disponible pour saisir les scores :</p>
+                        <ul>
+                            <li><strong>Barbu / Dernier Pli</strong> — sélectionnez le joueur qui l'a pris.</li>
+                            <li><strong>Pas de Dames / Plis / Cœurs</strong> — ajustez le compteur pour chaque joueur.</li>
+                            <li><strong>La Salade</strong> — saisie combinée des 4 sous-contrats.</li>
+                            <li><strong>La Réussite</strong> — classez les joueurs par ordre de sortie.</li>
+                        </ul>
+                        <p>Validez avec <em>Confirmer</em>. Le tableau des scores est mis à jour automatiquement.</p>
+                    </div>
+
+                    <div class="about-block">
+                        <h4>Les 7 contrats du Barbu</h4>
+                        <table class="about-contracts-table">
+                            <thead><tr><th>Contrat</th><th>Règle</th><th>Points</th></tr></thead>
+                            <tbody>
+                                <tr><td>👑 Le Barbu</td><td>Ne pas prendre le Roi de cœur</td><td>Valeur fixe au preneur</td></tr>
+                                <tr><td>👸 Pas de Dames</td><td>Ne pas prendre de dame</td><td>Malus par dame × valeur</td></tr>
+                                <tr><td>🃏 Pas de Plis</td><td>Ne pas prendre de pli</td><td>Malus par pli × valeur</td></tr>
+                                <tr><td>♥️ Pas de Cœurs</td><td>Ne pas prendre de cœur</td><td>Malus par cœur × valeur</td></tr>
+                                <tr><td>☠️ Dernier Pli</td><td>Ne pas prendre le dernier pli</td><td>Valeur fixe au preneur</td></tr>
+                                <tr><td>🥗 La Salade</td><td>Combinaison des 4 contrats ci-dessus</td><td>Total réparti</td></tr>
+                                <tr><td>🌟 La Réussite</td><td>Réussir à se défausser en premier</td><td>Bonus décroissant par rang</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="about-block">
+                        <h4>Modifier / corriger une manche</h4>
+                        <p>Dans l'écran de jeu, ouvrez l'<em>Historique des manches</em> et appuyez sur une ligne pour l'éditer. Les scores sont recalculés automatiquement.</p>
+                    </div>
+
+                    <div class="about-block">
+                        <h4>Paramètres des scores</h4>
+                        <p>Accédez à <strong>Règles</strong> pour personnaliser les valeurs de chaque contrat selon vos règles maison. Les modifications s'appliquent aux prochaines parties.</p>
+                    </div>
+
+                    <div class="about-block">
+                        <h4>Données et confidentialité</h4>
+                        <p>Toutes vos données (profils joueurs, historique, paramètres) sont stockées <strong>exclusivement sur votre appareil</strong> — IndexedDB pour les profils, localStorage pour les parties. Aucune donnée n'est envoyée à un serveur.</p>
+                    </div>
+
+                    <div class="about-block">
+                        <h4>Installation (PWA)</h4>
+                        <p>Sur mobile ou tablette, utilisez <em>Ajouter à l'écran d'accueil</em> dans votre navigateur pour installer BarbuScore comme une application native, utilisable hors connexion.</p>
+                    </div>
+                </div>
+
+                <!-- Copyright -->
+                <div class="glass-card about-section about-copyright">
+                    <div class="copyright-icon">⚖️</div>
+                    <h3>Licence &amp; Copyright</h3>
+                    <p>
+                        © <strong>Dominique SAUTON</strong> — <span id="about-year"></span><br>
+                        Tous droits réservés sur le code source.
+                    </p>
+                    <p class="about-license">
+                        Ce logiciel est mis à disposition en <strong>libre usage</strong> à titre personnel et non commercial,
+                        sans garantie d'aucune sorte — ni d'adéquation à un usage particulier, ni d'absence de défaut.
+                        L'auteur ne saurait être tenu responsable de tout dommage direct ou indirect résultant
+                        de l'utilisation de cette application.
+                    </p>
+                    <p class="about-links">
+                        <a href="https://github.com/dsauton-bit/barbu-score" target="_blank" rel="noopener">
+                            🔗 Code source sur GitHub
+                        </a>
+                    </p>
+                </div>
+
             </section>
 
         </main>

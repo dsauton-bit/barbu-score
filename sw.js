@@ -1,4 +1,4 @@
-const CACHE_NAME = 'barbu-score-v1';
+const CACHE_NAME = 'barbu-score-v2';
 
 const APP_SHELL = [
     '/',
@@ -15,6 +15,8 @@ const APP_SHELL = [
     '/js/render-game.js',
     '/js/render-score-input.js',
     '/js/render-history.js',
+    '/js/render-about.js',
+    '/js/version.js',
     '/js/modals.js',
     '/js/router.js',
     '/icons/icon-192.svg',
