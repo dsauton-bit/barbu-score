@@ -20,12 +20,12 @@ export const CONTRACT_LABELS = {
 
 export const DEFAULT_SETTINGS = {
     barbu: -40,
-    dames: -6,
-    plis: -2,
+    dames: -10,
+    plis: -5,
     plis_bonus: 70,
-    coeurs: -2,
-    dernier_pli: -20,
-    salade_total: -116,
+    coeurs: -5,
+    dernier_pli: -40,
+    salade_total: -200,
     salade_capot: -130,
     reussite: [100, 50, 0, 0]
 };
