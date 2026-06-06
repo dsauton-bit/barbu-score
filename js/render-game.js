@@ -84,24 +84,36 @@ export function renderRoundHistory() {
 }
 
 export function renderScoreboard() {
+    const RANK_ICONS  = ['👑', '🏅', '⚔️', '🪣'];
+    const RANK_LABELS = ['Roi', 'Noble', 'Chevalier', 'Paysan'];
+
     const container = document.getElementById('game-scorecards-container');
     container.innerHTML = '';
 
-    const sorted = this.activeGame.players
-        .map((p, i) => ({ player: p, score: this.activeGame.scores[i] }))
-        .sort((a, b) => b.score - a.score);
+    // Calcul du rang par score (0 = meilleur) sans changer l'ordre d'affichage
+    const withScores = this.activeGame.players.map((p, i) => ({
+        player: p,
+        score: this.activeGame.scores[i]
+    }));
+    const scoreRanking = [...withScores]
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.player.gameIndex);
 
-    sorted.forEach((item, sortedIdx) => {
+    // Affichage dans l'ordre de jeu
+    withScores.forEach(item => {
         const p = item.player;
+        const rank = scoreRanking.indexOf(p.gameIndex); // 0 = meilleur score
+        const icon  = RANK_ICONS[rank]  ?? '🪣';
+        const label = RANK_LABELS[rank] ?? 'Paysan';
         const scoreClass = item.score > 0 ? 'positive' : item.score < 0 ? 'negative' : '';
         const avatar = p.photo
             ? `<img class="score-card-avatar" src="${p.photo}">`
             : `<div class="score-card-avatar" style="display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--bg-secondary);border:1px solid var(--border-color)">👤</div>`;
 
         const card = document.createElement('div');
-        card.className = `score-card rank-${sortedIdx}`;
+        card.className = `score-card rank-${rank}`;
         card.innerHTML = `
-            <div class="score-card-rank">${['1er','2e','3e','4e'][sortedIdx]}</div>
+            <div class="score-card-rank" title="${label}">${icon}</div>
             ${avatar}
             <div class="score-card-details">
                 <div class="score-card-name">${this.escapeHTML(p.name)}</div>
