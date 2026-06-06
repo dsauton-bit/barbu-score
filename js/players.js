@@ -1,3 +1,11 @@
+/* ==========================================================================
+   GESTION DES JOUEURS & PHOTOS
+   Toutes les données sont stockées exclusivement sur l'appareil client :
+   - Profils joueurs : IndexedDB (BarbuScoreDB) avec fallback localStorage
+   - Parties / historique / paramètres : localStorage
+   Aucune donnée n'est envoyée ni stockée sur le serveur.
+   ========================================================================== */
+
 export async function toggleWebcam() {
     const video = document.getElementById('webcam-video');
     const preview = document.getElementById('photo-preview');
@@ -53,8 +61,10 @@ export function capturePhoto() {
     const startX = (video.videoWidth - size) / 2;
     const startY = (video.videoHeight - size) / 2;
 
-    context.drawImage(video, startX, startY, size, size, 0, 0, 300, 300);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    canvas.width = 200;
+    canvas.height = 200;
+    context.drawImage(video, startX, startY, size, size, 0, 0, 200, 200);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
     preview.innerHTML = `<img src="${dataUrl}" alt="Photo de profil">`;
     preview.dataset.photo = dataUrl;
@@ -72,16 +82,28 @@ export function handlePhotoImport(event) {
         img.onload = () => {
             const canvas = document.getElementById('photo-canvas');
             const context = canvas.getContext('2d');
-            const size = Math.min(img.width, img.height);
-            const startX = (img.width - size) / 2;
-            const startY = (img.height - size) / 2;
 
-            context.drawImage(img, startX, startY, size, size, 0, 0, 150, 150);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            // naturalWidth/naturalHeight peuvent valoir 0 pour les SVG sans dimensions explicites
+            // → on force une taille de rendu cohérente
+            const srcW = img.naturalWidth > 0 ? img.naturalWidth : 300;
+            const srcH = img.naturalHeight > 0 ? img.naturalHeight : 300;
+            const size = Math.min(srcW, srcH);
+            const startX = (srcW - size) / 2;
+            const startY = (srcH - size) / 2;
+
+            canvas.width = 200;
+            canvas.height = 200;
+            context.clearRect(0, 0, 200, 200);
+            context.drawImage(img, startX, startY, size, size, 0, 0, 200, 200);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
             const preview = document.getElementById('photo-preview');
             preview.innerHTML = `<img src="${dataUrl}" alt="Photo de profil">`;
             preview.dataset.photo = dataUrl;
+        };
+        img.onerror = () => {
+            alert("Impossible de charger cette image. Essayez un autre format (JPG, PNG, WebP).");
         };
         img.src = e.target.result;
     };
@@ -95,14 +117,27 @@ export async function savePlayer(event) {
 
     const name = nameInput.value.trim();
     const photo = preview.dataset.photo || null;
-
     if (!name) return;
 
-    const saved = await this.savePlayerToDB({ name, photo, gamesPlayed: 0, wins: 0 });
+    let playerData;
+    if (this.editingPlayerId) {
+        // Mode édition : conserver les stats existantes
+        const players = await this.getAllPlayers();
+        const existing = players.find(p => p.id === this.editingPlayerId);
+        playerData = {
+            id: this.editingPlayerId,
+            name,
+            photo,
+            gamesPlayed: existing ? (existing.gamesPlayed || 0) : 0,
+            wins: existing ? (existing.wins || 0) : 0
+        };
+    } else {
+        playerData = { name, photo, gamesPlayed: 0, wins: 0 };
+    }
+
+    const saved = await this.savePlayerToDB(playerData);
     if (saved) {
-        nameInput.value = '';
-        preview.innerHTML = '👤';
-        delete preview.dataset.photo;
+        this._resetPlayerForm();
         await this.refreshPlayersList();
         this.updateStatsOverview();
     } else {
@@ -110,7 +145,58 @@ export async function savePlayer(event) {
     }
 }
 
+export async function editPlayer(id) {
+    const players = await this.getAllPlayers();
+    const player = players.find(p => p.id === id);
+    if (!player) return;
+
+    this.editingPlayerId = id;
+
+    // Pré-remplir le formulaire
+    document.getElementById('player-name').value = player.name;
+    document.getElementById('player-form-title').textContent = `Modifier "${player.name}"`;
+    document.getElementById('player-form-submit').textContent = 'Enregistrer les modifications';
+    document.getElementById('player-form-cancel').classList.remove('hidden');
+
+    const preview = document.getElementById('photo-preview');
+    if (player.photo) {
+        preview.innerHTML = `<img src="${player.photo}" alt="${player.name}">`;
+        preview.dataset.photo = player.photo;
+    } else {
+        preview.innerHTML = '👤';
+        delete preview.dataset.photo;
+    }
+
+    // Remonter vers le formulaire
+    document.getElementById('player-form').closest('.glass-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+export function cancelEditPlayer() {
+    this._resetPlayerForm();
+}
+
+export function _resetPlayerForm() {
+    this.editingPlayerId = null;
+    document.getElementById('player-name').value = '';
+    document.getElementById('player-form-title').textContent = 'Créer un Joueur';
+    document.getElementById('player-form-submit').textContent = 'Enregistrer le Joueur';
+    document.getElementById('player-form-cancel').classList.add('hidden');
+
+    const preview = document.getElementById('photo-preview');
+    preview.innerHTML = '👤';
+    delete preview.dataset.photo;
+
+    // Réinitialiser l'input file pour permettre de re-sélectionner le même fichier
+    const fileInput = document.getElementById('player-photo-file');
+    if (fileInput) fileInput.value = '';
+
+    this.stopWebcam();
+}
+
 export async function deletePlayer(id) {
+    // Empêcher la suppression si en cours d'édition de ce joueur
+    if (this.editingPlayerId === id) this.cancelEditPlayer();
+
     this.showConfirmModal(
         "Supprimer le joueur",
         "Voulez-vous vraiment supprimer ce profil ? Cette action est irréversible.",
@@ -134,14 +220,16 @@ export async function refreshPlayersList() {
 
     players.forEach(player => {
         const ratio = player.gamesPlayed > 0 ? Math.round((player.wins / player.gamesPlayed) * 100) : 0;
+        const isEditing = this.editingPlayerId === player.id;
         const avatar = player.photo
             ? `<img class="player-card-avatar" src="${player.photo}" alt="${player.name}">`
             : `<div class="player-card-avatar">👤</div>`;
 
         const card = document.createElement('div');
-        card.className = 'player-card';
+        card.className = `player-card${isEditing ? ' editing' : ''}`;
         card.innerHTML = `
-            <button class="player-card-delete" onclick="app.deletePlayer(${player.id})">✕</button>
+            <button class="player-card-delete" title="Supprimer" onclick="app.deletePlayer(${player.id})">✕</button>
+            <button class="player-card-edit" title="Modifier la photo" onclick="app.editPlayer(${player.id})">✏️</button>
             ${avatar}
             <div class="player-card-name">${this.escapeHTML(player.name)}</div>
             <div class="player-card-stats">${player.gamesPlayed} part. / ${ratio}% vict.</div>

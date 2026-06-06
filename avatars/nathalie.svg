@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0891b2"/>
+      <stop offset="100%" style="stop-color:#0e7490"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fde68a"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fond -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg)"/>
+
+  <!-- Corps -->
+  <ellipse cx="100" cy="185" rx="52" ry="38" fill="#155e75"/>
+  <ellipse cx="100" cy="160" rx="40" ry="28" fill="#0e7490"/>
+
+  <!-- Cou -->
+  <rect x="88" y="118" width="24" height="20" rx="6" fill="url(#skin)"/>
+
+  <!-- Tête -->
+  <ellipse cx="100" cy="104" rx="34" ry="36" fill="url(#skin)"/>
+
+  <!-- Cheveux mi-longs raides châtains -->
+  <ellipse cx="100" cy="80" rx="37" ry="22" fill="#292524"/>
+  <rect x="63" y="80" width="14" height="46" rx="7" fill="#292524"/>
+  <rect x="123" y="80" width="14" height="46" rx="7" fill="#292524"/>
+  <ellipse cx="100" cy="73" rx="24" ry="12" fill="#44403c"/>
+  <!-- Reflets -->
+  <ellipse cx="90" cy="74" rx="8" ry="4" fill="#57534e" opacity="0.7"/>
+
+  <!-- Yeux en amande -->
+  <ellipse cx="88" cy="106" rx="6" ry="5" fill="white"/>
+  <ellipse cx="112" cy="106" rx="6" ry="5" fill="white"/>
+  <circle cx="89" cy="107" r="3.5" fill="#0c4a6e"/>
+  <circle cx="113" cy="107" r="3.5" fill="#0c4a6e"/>
+  <circle cx="90" cy="106" r="1" fill="white"/>
+  <circle cx="114" cy="106" r="1" fill="white"/>
+
+  <!-- Sourcils fins -->
+  <path d="M81 99 Q88 96 95 99" stroke="#292524" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M105 99 Q112 96 119 99" stroke="#292524" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- Nez fin -->
+  <ellipse cx="100" cy="116" rx="2.5" ry="2" fill="#e09b5a" opacity="0.5"/>
+
+  <!-- Sourire discret -->
+  <path d="M91 123 Q100 129 109 123" stroke="#b45309" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <text x="100" y="194" font-family="Arial, sans-serif" font-size="13" font-weight="700"
+        text-anchor="middle" fill="white" opacity="0.9">Nathalie</text>
+
+  <circle cx="100" cy="100" r="99" fill="none" stroke="rgba(103,232,249,0.5)" stroke-width="2"/>
+</svg>

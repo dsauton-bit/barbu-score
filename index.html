@@ -117,9 +117,9 @@
                 </div>
 
                 <div class="players-layout">
-                    <!-- Formulaire d'ajout -->
+                    <!-- Formulaire d'ajout / édition -->
                     <div class="glass-card player-form-card">
-                        <h3>Créer un Joueur</h3>
+                        <h3 id="player-form-title">Créer un Joueur</h3>
                         <form id="player-form" onsubmit="app.savePlayer(event)">
                             <div class="form-group">
                                 <label for="player-name">Nom ou Pseudo</label>
@@ -133,7 +133,7 @@
                                     <div class="photo-preview-container">
                                         <div id="photo-preview" class="photo-preview-empty">👤</div>
                                         <video id="webcam-video" autoplay playsinline class="hidden"></video>
-                                        <canvas id="photo-canvas" class="hidden" width="300" height="300"></canvas>
+                                        <canvas id="photo-canvas" class="hidden" width="200" height="200"></canvas>
                                     </div>
                                     <div class="photo-actions">
                                         <!-- Import photo -->
@@ -154,7 +154,10 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-block">Enregistrer le Joueur</button>
+                            <div style="display:flex;gap:10px">
+                                <button type="submit" id="player-form-submit" class="btn btn-primary btn-block">Enregistrer le Joueur</button>
+                                <button type="button" id="player-form-cancel" class="btn btn-secondary hidden" onclick="app.cancelEditPlayer()">Annuler</button>
+                            </div>
                         </form>
                     </div>
 

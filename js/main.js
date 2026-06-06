@@ -19,6 +19,7 @@ class BarbuApp {
         this.selectedSetupPlayers = [];
         this.webcamStream = null;
         this.editingRoundRef = null;
+        this.editingPlayerId = null;
         this.dbName = 'BarbuScoreDB';
         this.dbVersion = 1;
         this.CONTRACT_KEYS = CONTRACT_KEYS;

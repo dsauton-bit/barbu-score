@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d97706"/>
+      <stop offset="100%" style="stop-color:#b45309"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fcd34d"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fond -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg)"/>
+
+  <!-- Corps -->
+  <ellipse cx="100" cy="185" rx="56" ry="38" fill="#78350f"/>
+  <ellipse cx="100" cy="158" rx="44" ry="30" fill="#92400e"/>
+
+  <!-- Cou plus large (homme) -->
+  <rect x="86" y="116" width="28" height="22" rx="6" fill="url(#skin)"/>
+
+  <!-- Tête plus carrée (homme) -->
+  <rect x="64" y="74" width="72" height="68" rx="22" fill="url(#skin)"/>
+
+  <!-- Cheveux courts -->
+  <ellipse cx="100" cy="77" rx="38" ry="16" fill="#1c1917"/>
+  <!-- Tempes -->
+  <rect x="64" y="77" width="14" height="20" rx="4" fill="#1c1917"/>
+  <rect x="122" y="77" width="14" height="20" rx="4" fill="#1c1917"/>
+  <!-- Partie haute -->
+  <ellipse cx="100" cy="70" rx="30" ry="14" fill="#292524"/>
+
+  <!-- Barbe courte -->
+  <ellipse cx="100" cy="132" rx="28" ry="12" fill="#292524" opacity="0.7"/>
+  <ellipse cx="84" cy="126" rx="10" ry="8" fill="#292524" opacity="0.6"/>
+  <ellipse cx="116" cy="126" rx="10" ry="8" fill="#292524" opacity="0.6"/>
+
+  <!-- Yeux -->
+  <ellipse cx="87" cy="104" rx="6" ry="5.5" fill="white"/>
+  <ellipse cx="113" cy="104" rx="6" ry="5.5" fill="white"/>
+  <circle cx="88" cy="105" r="3.5" fill="#1c1917"/>
+  <circle cx="114" cy="105" r="3.5" fill="#1c1917"/>
+  <circle cx="89" cy="104" r="1" fill="white"/>
+  <circle cx="115" cy="104" r="1" fill="white"/>
+
+  <!-- Sourcils épais -->
+  <path d="M80 97 Q87 93 94 97" stroke="#1c1917" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M106 97 Q113 93 120 97" stroke="#1c1917" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Nez proéminent -->
+  <path d="M97 112 Q100 120 103 112" stroke="#c97a30" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="119" rx="5" ry="3" fill="#c97a30" opacity="0.5"/>
+
+  <!-- Sourire -->
+  <path d="M88 128 Q100 136 112 128" stroke="#92400e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <text x="100" y="194" font-family="Arial, sans-serif" font-size="15" font-weight="700"
+        text-anchor="middle" fill="white" opacity="0.9">José</text>
+
+  <circle cx="100" cy="100" r="99" fill="none" stroke="rgba(252,211,77,0.5)" stroke-width="2"/>
+</svg>
