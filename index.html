@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbu Score - Compteur de points Premium</title>
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="description" content="Comptez vos points au jeu de cartes Barbu avec élégance">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BarbuScore">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Barre de navigation supérieure -->
+        <header class="app-header">
+            <div class="logo" onclick="app.navigate('home')">
+                <span class="logo-icon">🃏</span>
+                <h1>Barbu<span class="accent">Score</span></h1>
+            </div>
+            <nav class="nav-links">
+                <button class="nav-btn active" data-screen="home" onclick="app.navigate('home')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span>Accueil</span>
+                </button>
+                <button class="nav-btn" data-screen="players" onclick="app.navigate('players')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <span>Joueurs</span>
+                </button>
+                <button class="nav-btn" data-screen="history" onclick="app.navigate('history')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                    <span>Historique</span>
+                </button>
+                <button class="nav-btn" data-screen="settings" onclick="app.navigate('settings')">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    <span>Règles</span>
+                </button>
+            </nav>
+            <div class="header-actions">
+                <button id="resume-game-btn" class="btn btn-accent btn-sm hidden" onclick="app.resumeGame()">
+                    <span>Partie en cours ➔</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Contenu Principal (Écrans de la SPA) -->
+        <main class="app-main">
+
+            <!-- ÉCRAN ACCUEIL -->
+            <section id="screen-home" class="screen active">
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <h2>Comptez vos points au Barbu avec élégance</h2>
+                        <p>Suivez vos manches, calculez automatiquement les scores et gardez un historique de vos meilleures soirées jeux.</p>
+                        <div class="hero-buttons">
+                            <button class="btn btn-primary btn-lg" onclick="app.navigate('setup')">
+                                <span class="btn-icon">🎮</span> Nouvelle Partie
+                            </button>
+                            <button class="btn btn-secondary btn-lg" onclick="app.navigate('players')">
+                                <span class="btn-icon">👥</span> Gérer les Joueurs
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="card-visual">
+                            <div class="card-front">👑</div>
+                            <div class="card-back">♥️</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-overview">
+                    <h3>Vue d'ensemble rapide</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-total-games">0</div>
+                            <div class="stat-label">Parties Jouées</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-total-players">0</div>
+                            <div class="stat-label">Joueurs Enregistrés</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-best-player">-</div>
+                            <div class="stat-label">Meilleur Joueur</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parties Récentes -->
+                <div class="recent-games-section">
+                    <div class="section-header">
+                        <h3>Parties Récentes</h3>
+                        <a href="#" onclick="app.navigate('history'); return false;" class="link-more">Tout voir ➔</a>
+                    </div>
+                    <div class="recent-games-list" id="recent-games-container">
+                        <div class="empty-state">
+                            <p>Aucune partie jouée pour le moment. Lancez-vous !</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ÉCRAN JOUEURS -->
+            <section id="screen-players" class="screen">
+                <div class="screen-header">
+                    <h2>Gestion des Joueurs</h2>
+                    <p>Enregistrez les participants avec leur photo pour un suivi visuel unique.</p>
+                </div>
+
+                <div class="players-layout">
+                    <!-- Formulaire d'ajout -->
+                    <div class="glass-card player-form-card">
+                        <h3>Créer un Joueur</h3>
+                        <form id="player-form" onsubmit="app.savePlayer(event)">
+                            <div class="form-group">
+                                <label for="player-name">Nom ou Pseudo</label>
+                                <input type="text" id="player-name" required placeholder="Entrez un nom..." autocomplete="off">
+                            </div>
+                            
+                            <!-- Prise de photo -->
+                            <div class="form-group">
+                                <label>Photo de profil</label>
+                                <div class="photo-selector-wrapper">
+                                    <div class="photo-preview-container">
+                                        <div id="photo-preview" class="photo-preview-empty">👤</div>
+                                        <video id="webcam-video" autoplay playsinline class="hidden"></video>
+                                        <canvas id="photo-canvas" class="hidden" width="300" height="300"></canvas>
+                                    </div>
+                                    <div class="photo-actions">
+                                        <!-- Import photo -->
+                                        <label class="btn btn-secondary btn-sm file-input-label">
+                                            <svg class="icon-sm" viewBox="0 0 24 24"><path d="M19 7v2.99s-1.99.01-2 0V7h-3V5h3V2h2v3h3v2h-3zm-3 4V9c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-6h-2zm-2 5l-2.44-3.21-1.9 2.5-1.43-1.88L6.5 17h9.5z"/></svg>
+                                            <span>Galerie</span>
+                                            <input type="file" id="player-photo-file" accept="image/*" onchange="app.handlePhotoImport(event)">
+                                        </label>
+                                        <!-- Webcam photo -->
+                                        <button type="button" id="webcam-btn" class="btn btn-secondary btn-sm" onclick="app.toggleWebcam()">
+                                            <svg class="icon-sm" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l1.42-1.42C9.14 17.16 10.51 17.5 12 17.5s2.86-.34 4.08-1.42l1.42 1.42C15.93 19.06 14.04 19.5 12 19.5s-3.93-.44-5.5-2.02zM12 5c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
+                                            <span id="webcam-btn-text">Caméra</span>
+                                        </button>
+                                        <button type="button" id="capture-btn" class="btn btn-accent btn-sm hidden" onclick="app.capturePhoto()">
+                                            📸 Capturer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">Enregistrer le Joueur</button>
+                        </form>
+                    </div>
+
+                    <!-- Liste des joueurs -->
+                    <div class="glass-card players-list-card">
+                        <h3>Joueurs Enregistrés</h3>
+                        <div class="players-grid" id="players-list-container">
+                            <!-- Rempli par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ÉCRAN CONFIGURATION DE PARTIE -->
+            <section id="screen-setup" class="screen">
+                <div class="screen-header">
+                    <h2>Nouvelle Partie</h2>
+                    <p>Sélectionnez exactement 4 joueurs pour démarrer la partie.</p>
+                </div>
+
+                <div class="glass-card setup-card">
+                    <div class="setup-selection-header">
+                        <h3>Sélection des joueurs (<span id="setup-selected-count">0</span> / 4)</h3>
+                        <button class="btn btn-primary" id="start-game-btn" disabled onclick="app.startGame()">
+                            Lancer la Partie ➔
+                        </button>
+                    </div>
+
+                    <div class="setup-selected-row" id="setup-selected-players">
+                        <!-- Emplacements pour les 4 joueurs sélectionnés -->
+                        <div class="selected-slot empty" data-slot="0"><span>Joueur 1</span></div>
+                        <div class="selected-slot empty" data-slot="1"><span>Joueur 2</span></div>
+                        <div class="selected-slot empty" data-slot="2"><span>Joueur 3</span></div>
+                        <div class="selected-slot empty" data-slot="3"><span>Joueur 4</span></div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <h4>Choisissez parmi vos joueurs enregistrés</h4>
+                    <div class="players-selection-grid" id="setup-players-list">
+                        <!-- Liste des joueurs sélectionnables -->
+                    </div>
+                    <div id="setup-empty-players" class="hidden">
+                        <p class="text-muted">Aucun joueur disponible. <a href="#" onclick="app.navigate('players'); return false;">Créez-en d'abord ici</a>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ÉCRAN TABLEAU DE BORD DE PARTIE -->
+            <section id="screen-game" class="screen">
+                <div class="game-header">
+                    <div>
+                        <h2>Partie en cours</h2>
+                        <p class="game-round-info">Manche <span id="game-current-round-num">1</span> / 28</p>
+                    </div>
+                    <div class="game-actions">
+                        <button class="btn btn-danger btn-sm" onclick="app.confirmQuitGame()">Quitter</button>
+                    </div>
+                </div>
+
+                <!-- Scoreboard Actuel -->
+                <div class="glass-card scoreboard-card">
+                    <h3>Classement Provisoire</h3>
+                    <div class="score-cards-row" id="game-scorecards-container">
+                        <!-- Cartes de score des joueurs -->
+                    </div>
+                </div>
+
+                <!-- Historique des manches jouées -->
+                <div class="glass-card round-history-card" id="round-history-card">
+                    <button class="round-history-toggle" onclick="app.toggleRoundHistory()" id="round-history-toggle-btn">
+                        <h3>Historique des manches (<span id="round-history-count">0</span>)</h3>
+                        <span class="toggle-arrow" id="round-history-arrow">▼</span>
+                    </button>
+                    <div id="round-history-container" class="hidden">
+                        <div class="table-responsive">
+                            <table class="contracts-table round-history-table">
+                                <thead id="round-history-thead"></thead>
+                                <tbody id="round-history-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grille des Contrats (Matrice de Suivi) -->
+                <div class="glass-card contracts-card">
+                    <div class="contracts-card-header">
+                        <h3>Grille des Contrats</h3>
+                        <p class="hint">C'est au tour de <strong id="current-dealer-name">-</strong> de choisir un contrat disponible (cliquez sur une case disponible).</p>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="contracts-table">
+                            <thead>
+                                <tr id="contracts-table-header">
+                                    <th>Contrats</th>
+                                    <!-- Joueurs remplis par JS -->
+                                </tr>
+                            </thead>
+                            <tbody id="contracts-table-body">
+                                <!-- Lignes des contrats (Barbu, Dames, Plis, Cœurs, Dernier Pli, Salade, Réussite) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ÉCRAN SAISIE DES SCORES -->
+            <section id="screen-score-input" class="screen">
+                <div class="screen-header">
+                    <h2>Saisie de la manche</h2>
+                    <p>Contrat choisi : <strong id="input-contract-name" class="accent">-</strong> par <strong id="input-chooser-name">-</strong></p>
+                </div>
+
+                <div class="glass-card score-input-card">
+                    <div id="score-input-form-container">
+                        <!-- Formulaire généré dynamiquement en fonction du contrat -->
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Zone de validation et bouton de soumission -->
+                    <div class="input-footer">
+                        <div id="score-input-validation-msg" class="validation-msg error">
+                            <!-- Messages d'erreur de saisie de points -->
+                        </div>
+                        <button class="btn btn-primary btn-lg btn-block" id="submit-scores-btn" onclick="app.submitScores()">
+                            Valider les scores ➔
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ÉCRAN FIN DE PARTIE (PODIUM) -->
+            <section id="screen-game-over" class="screen">
+                <div class="screen-header text-center">
+                    <h2>🏆 Partie Terminée !</h2>
+                    <p>Félicitations au vainqueur et bien joué à tous !</p>
+                </div>
+
+                <!-- Le Podium -->
+                <div class="podium-container" id="podium-players-container">
+                    <!-- Généré dynamiquement en JS -->
+                </div>
+
+                <!-- Tableau final des scores -->
+                <div class="glass-card final-scores-card">
+                    <h3>Détail des scores finaux</h3>
+                    <div class="table-responsive">
+                        <table class="final-scores-table">
+                            <thead>
+                                <tr id="final-table-header">
+                                    <th>Joueur</th>
+                                    <th>Score Final</th>
+                                    <th>Négatifs pris</th>
+                                    <th>Réussite (Positif)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="final-table-body">
+                                <!-- Rempli en JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="actions-row mt-4">
+                        <button class="btn btn-primary" onclick="app.navigate('home')">Retour à l'accueil</button>
+                        <button class="btn btn-secondary" onclick="app.navigate('history')">Voir l'historique</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ÉCRAN HISTORIQUE -->
+            <section id="screen-history" class="screen">
+                <div class="screen-header">
+                    <h2>Historique des Parties</h2>
+                    <p>Consultez les résultats de toutes vos parties passées.</p>
+                </div>
+
+                <div class="history-list" id="history-list-container">
+                    <!-- Rempli par JavaScript -->
+                </div>
+            </section>
+
+            <!-- ÉCRAN PARAMÈTRES / RÈGLES -->
+            <section id="screen-settings" class="screen">
+                <div class="screen-header">
+                    <h2>Règles & Barèmes des Contrats</h2>
+                    <p>Configurez les points associés à chaque contrat pour correspondre à vos règles locales.</p>
+                </div>
+
+                <div class="glass-card settings-card">
+                    <form id="settings-form" onsubmit="app.saveSettings(event)">
+                        
+                        <div class="settings-section">
+                            <h3>Contrats Négatifs</h3>
+                            
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label for="setting-val-barbu">Le Barbu (Roi de Cœur)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-barbu" required value="-40">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-val-dame">Chaque Dame (4 au total)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-dame" required value="-6">
+                                        <span>points</span>
+                                    </div>
+                                    <p class="hint">Total maximum : <span id="setting-total-dames">-24</span> pts</p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-val-plis">Chaque Pli (8 plis au total)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-plis" required value="-2">
+                                        <span>points</span>
+                                    </div>
+                                    <p class="hint">Total maximum : <span id="setting-total-plis">-16</span> pts</p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-val-plis-bonus">Plis : Bonus Capot (si 8 plis pris)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-plis-bonus" required value="70">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-val-coeurs">Chaque Cœur (8 cœurs au total)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-coeurs" required value="-2">
+                                        <span>points</span>
+                                    </div>
+                                    <p class="hint">Total maximum : <span id="setting-total-coeurs">-16</span> pts</p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-val-dernier-pli">Le Dernier Pli</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-dernier-pli" required value="-20">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>La Salade (Cumul théorique)</label>
+                                    <div class="disabled-display">
+                                        <span id="setting-total-salad">-116</span> points
+                                    </div>
+                                    <p class="hint">Somme théorique : Barbu + 4xDames + 8xPlis + 8xCœurs + Dernier Pli</p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-val-salad-total">Salade : Total de points (Saisie directe)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-salad-total" required value="-116">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="setting-val-salad-capot">Salade : Points si Capot / Tout pris</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-salad-capot" required value="-130">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="settings-section">
+                            <h3>Contrat Positif : La Réussite (Domino)</h3>
+                            <p class="hint">Entrez les points attribués selon l'ordre d'arrivée (pas de score négatif pour le dernier par défaut).</p>
+                            
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label for="setting-val-r1">1er Joueur (Fini en premier)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-r1" required value="100">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="setting-val-r2">2ème Joueur</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-r2" required value="50">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="setting-val-r3">3ème Joueur</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-r3" required value="0">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="setting-val-r4">4ème Joueur (Dernier)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number" id="setting-val-r4" required value="0">
+                                        <span>points</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="form-actions-row">
+                            <button type="submit" class="btn btn-primary">Sauvegarder les Paramètres</button>
+                            <button type="button" class="btn btn-secondary" onclick="app.resetSettingsDefault()">Restaurer les valeurs par défaut</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modale de Modification des Scores d'une Manche -->
+    <div id="edit-round-modal" class="modal-backdrop hidden">
+        <div class="modal-content glass-card" style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
+            <h3 id="edit-round-title">Modifier la manche</h3>
+            <p id="edit-round-desc" class="text-muted" style="margin-bottom: 12px;"></p>
+            <div id="edit-round-inputs-container" class="score-input-row" style="margin-bottom: 20px;">
+                <!-- Formulaire de modification dynamique -->
+            </div>
+            <div id="edit-round-validation-msg" class="validation-msg error" style="margin-bottom: 20px;"></div>
+            <div class="modal-actions">
+                <button id="edit-round-cancel-btn" class="btn btn-secondary" onclick="app.closeEditRoundModal()">Annuler</button>
+                <button id="edit-round-save-btn" class="btn btn-primary" onclick="app.saveEditedRound()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de Confirmation Générique -->
+    <div id="confirm-modal" class="modal-backdrop hidden">
+        <div class="modal-content glass-card">
+            <h3 id="modal-title">Confirmation</h3>
+            <p id="modal-message">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+            <div class="modal-actions">
+                <button id="modal-cancel-btn" class="btn btn-secondary">Annuler</button>
+                <button id="modal-confirm-btn" class="btn btn-danger">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
