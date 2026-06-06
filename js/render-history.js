@@ -16,16 +16,27 @@ export function renderHistoryScreen() {
             day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
         });
 
-        const sortedPlayers = [...game.players].sort((a, b) => b.score - a.score);
+        const RANK_ICONS = ['👑', '🏅', '⚔️', '🪣'];
+        const RANK_LABELS = ['Roi', 'Noble', 'Chevalier', 'Paysan'];
 
+        // Calcul du classement par score (pour l'icône) sans changer l'ordre d'affichage
+        const scoreRanking = [...game.players]
+            .sort((a, b) => b.score - a.score)
+            .map(p => p.id);
+
+        // Affichage dans l'ordre de jeu (game.players), icône selon rang au score
         let playersHtml = "";
-        sortedPlayers.forEach(p => {
+        game.players.forEach(p => {
+            const rank = scoreRanking.indexOf(p.id); // 0 = meilleur score
+            const icon = RANK_ICONS[rank] ?? '🪣';
+            const label = RANK_LABELS[rank] ?? 'Paysan';
             const avatar = p.photo
                 ? `<img class="history-player-avatar" src="${p.photo}">`
                 : `<div class="history-player-avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--bg-secondary);">👤</div>`;
 
             playersHtml += `
-                <div class="history-player ${p.id === game.winnerId ? 'winner' : ''}">
+                <div class="history-player ${rank === 0 ? 'winner' : ''}">
+                    <div class="history-rank-badge" title="${label}">${icon}</div>
                     ${avatar}
                     <div class="history-player-name">${this.escapeHTML(p.name)}</div>
                     <div class="history-player-score">${p.score}</div>

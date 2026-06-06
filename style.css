@@ -1739,6 +1739,13 @@ h1, h2, h3, h4, h5, h6 {
     background: rgba(139, 92, 246, 0.08);
 }
 
+/* Badge de rang (👑 Roi / 🏅 Noble / ⚔️ Chevalier / 🪣 Paysan) */
+.history-rank-badge {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
 /* ==========================================================================
    AMÉLIORATIONS ÉCRANS TACTILES  (pointer: coarse = doigt, pas de souris)
    ========================================================================== */
