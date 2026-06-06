@@ -2,7 +2,7 @@
     "name": "BarbuScore – Compteur de points Barbu",
     "short_name": "BarbuScore",
     "description": "Comptez vos points au jeu de cartes Barbu avec élégance",
-    "start_url": "./",
+    "start_url": "/barbu-score/",
     "display": "standalone",
     "orientation": "portrait-primary",
     "background_color": "#0f0f1a",
