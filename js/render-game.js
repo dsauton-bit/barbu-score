@@ -23,10 +23,14 @@ export function renderRoundHistory() {
 
     document.getElementById('round-history-count').textContent = history.length;
 
-    if (history.length === 0) return;
-
     const thead = document.getElementById('round-history-thead');
     const tbody = document.getElementById('round-history-tbody');
+
+    if (history.length === 0) {
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+        return;
+    }
 
     // En-tête : # | Contrat | Joueur1 | Joueur2 | Joueur3 | Joueur4
     thead.innerHTML = `
