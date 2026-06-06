@@ -122,45 +122,53 @@ export function renderSaladForm(container) {
     const round = this.activeGame.activeRound;
     if (!round.scores || round.scores.length !== 4) round.scores = [0, 0, 0, 0];
 
-    // Initialise l'état interne des sous-contrats si besoin
-    if (!round.saladSub) {
-        round.saladSub = {
-            barbu:      null,          // gameIndex du joueur pénalisé (ou null)
-            dernier_pli: null,         // gameIndex
-            dames:      [0, 0, 0, 0], // nb dames par joueur
-            plis:       [0, 0, 0, 0], // nb plis par joueur
-            coeurs:     [0, 0, 0, 0], // nb cœurs par joueur
-        };
-    }
+    const targetTotal = this.settings[this.CONTRACT_KEYS.SALAD + '_total'] || -116;
+    const capotTotal  = this.settings[this.CONTRACT_KEYS.SALAD + '_capot'] || -130;
 
-    container.innerHTML = '';
-
-    // ── Titre et total courant ────────────────────────────────────────────
+    // ── Total courant ─────────────────────────────────────────────────────
     const header = document.createElement('div');
-    header.className = 'salad-header';
     header.innerHTML = `
-        <p class="text-muted text-center mb-4">🥗 Saisissez chaque sous-contrat de la Salade :</p>
         <div class="salad-total-bar" id="salad-total-bar">
             Total : <span id="salad-total-display">0</span>
+            <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted);">
+                &nbsp;(attendu ${targetTotal} ou ${capotTotal})
+            </span>
         </div>`;
     container.appendChild(header);
 
-    // ── Sous-contrat Barbu ────────────────────────────────────────────────
-    container.appendChild(this._saladSection('👑 Le Barbu', this._saladSingleSelect(round, 'barbu')));
+    // ── Une ligne par joueur ──────────────────────────────────────────────
+    const list = document.createElement('div');
+    list.className = 'score-input-row';
 
-    // ── Sous-contrat Dernier Pli ──────────────────────────────────────────
-    container.appendChild(this._saladSection('☠️ Dernier Pli', this._saladSingleSelect(round, 'dernier_pli')));
+    this.activeGame.players.forEach(p => {
+        const val = round.scores[p.gameIndex] || 0;
+        const avatar = p.photo
+            ? `<img class="input-player-avatar" src="${p.photo}">`
+            : `<div class="input-player-avatar" style="display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg-secondary);border:1px solid var(--border-color)">👤</div>`;
 
-    // ── Sous-contrat Dames ────────────────────────────────────────────────
-    container.appendChild(this._saladSection('👸 Dames (4)', this._saladStepper(round, 'dames', 4)));
+        const row = document.createElement('div');
+        row.className = 'input-player-row';
+        row.innerHTML = `
+            <div class="input-player-info">
+                ${avatar}
+                <span class="input-player-name">${this.escapeHTML(p.name)}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button type="button" class="btn btn-secondary btn-sm"
+                    onclick="app.saladCapotAssign(${p.gameIndex}, ${capotTotal})">Capot</button>
+                <div class="number-stepper">
+                    <button type="button" class="stepper-btn minus"
+                        onclick="app.saladStep(${p.gameIndex}, -5)">−</button>
+                    <span class="stepper-val" id="salad-val-${p.gameIndex}">${val}</span>
+                    <button type="button" class="stepper-btn plus"
+                        onclick="app.saladStep(${p.gameIndex}, 5)">+</button>
+                </div>
+            </div>`;
+        list.appendChild(row);
+    });
 
-    // ── Sous-contrat Plis ─────────────────────────────────────────────────
-    container.appendChild(this._saladSection('🃏 Plis (8)', this._saladStepper(round, 'plis', 8)));
-
-    // ── Sous-contrat Cœurs ────────────────────────────────────────────────
-    container.appendChild(this._saladSection('♥️ Cœurs (8)', this._saladStepper(round, 'coeurs', 8)));
-
-    this._saladRecompute(round);
+    container.appendChild(list);
+    this._saladUpdateTotal(round, targetTotal, capotTotal);
 }
 
 export function _saladSection(title, content) {
@@ -441,13 +449,40 @@ export function assignAll(playerIndex, maxVal) {
     this.saveActiveGame();
 }
 
+export function saladStep(playerIndex, delta) {
+    const round = this.activeGame.activeRound;
+    round.scores[playerIndex] = (round.scores[playerIndex] || 0) + delta;
+    const el = document.getElementById(`salad-val-${playerIndex}`);
+    if (el) el.textContent = round.scores[playerIndex];
+    const targetTotal = this.settings[this.CONTRACT_KEYS.SALAD + '_total'] || -116;
+    const capotTotal  = this.settings[this.CONTRACT_KEYS.SALAD + '_capot'] || -130;
+    this._saladUpdateTotal(round, targetTotal, capotTotal);
+    this.validateInputScores();
+    this.saveActiveGame();
+}
+
+export function _saladUpdateTotal(round, targetTotal, capotTotal) {
+    const total = round.scores.reduce((a, b) => (a || 0) + (b || 0), 0);
+    const el  = document.getElementById('salad-total-display');
+    const bar = document.getElementById('salad-total-bar');
+    if (!el || !bar) return;
+    el.textContent = total;
+    const capotIdx   = round.scores.findIndex(v => v === capotTotal);
+    const othersZero = round.scores.every((v, i) => i === capotIdx || v === 0);
+    const ok = total === targetTotal || (capotIdx > -1 && othersZero);
+    bar.classList.toggle('salad-total-ok',  ok);
+    bar.classList.toggle('salad-total-err', !ok && total !== 0);
+}
+
 export function saladCapotAssign(playerIndex, capotTotal) {
     const round = this.activeGame.activeRound;
     this.activeGame.players.forEach(p => {
         round.scores[p.gameIndex] = p.gameIndex === playerIndex ? capotTotal : 0;
-        const input = document.getElementById(`salad-score-input-${p.gameIndex}`);
-        if (input) input.value = round.scores[p.gameIndex];
+        const el = document.getElementById(`salad-val-${p.gameIndex}`);
+        if (el) el.textContent = round.scores[p.gameIndex];
     });
+    const targetTotal = this.settings[this.CONTRACT_KEYS.SALAD + '_total'] || -116;
+    this._saladUpdateTotal(round, targetTotal, capotTotal);
     this.validateInputScores();
     this.saveActiveGame();
 }
